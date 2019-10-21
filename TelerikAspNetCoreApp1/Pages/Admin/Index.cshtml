@@ -1,0 +1,56 @@
+﻿@page
+@model IndexModel
+
+
+
+@using TelerikAspNetCoreApp1.Data
+@using Kendo.Mvc.UI
+
+
+
+
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@Html.AntiForgeryToken()
+
+
+
+
+
+
+@(Html.Kendo().Grid<OrderViewModel>().Name("grid")
+                    .Groupable()
+                    .Sortable()
+                    .Editable()
+                    .Scrollable()
+                    .ToolBar(x => x.Create())
+                    .Columns(columns =>
+                    {
+                      
+
+                        columns.Bound(column => column.Name);
+                        columns.Bound(column => column.Price);
+                        columns.Bound(column => column.Quantity);
+                        columns.Bound(column => column.Category);
+                        columns.Bound(column => column.ValidForm);
+                        columns.Command(column =>
+                        {
+                            column.Edit();
+                            column.Destroy();
+                        }).Width(230);
+                    })
+                    .DataSource(ds => ds.Ajax()
+                            .Read(r => r.Url("/Admin?handler=Read").Data("forgeryToken"))
+                            .Update(u => u.Url("/Admin?handler=Update").Data("forgeryToken"))
+                            .Create(c => c.Url("/Admin?handler=Create").Data("forgeryToken"))
+                            .Destroy(d => d.Url("/Admin?handler=Destroy").Data("forgeryToken"))
+                            .Model(m => m.Id(id => id.OrderID))
+                        .PageSize(25)
+                    )
+                    .Pageable()
+)
+
+<script>
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+</script>
